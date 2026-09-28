@@ -1,0 +1,9 @@
+.panel{background:var(--panel);padding:18px 16px 28px;display:grid;gap:14px;align-content:start}
+.grp h2{font:400 20px/1 "Caveat Brush","Patrick Hand",cursive;margin:0 0 6px;color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;color:var(--text);background:transparent;border:2px solid var(--line);border-radius:999px;padding:5px 13px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] .chip[aria-pressed="true"]{color:#12201a}
+.sw{width:34px;height:34px;padding:0;border-radius:50%;border:3px solid var(--line)}
+.sw[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--panel) inset}
+.reboot{background:transparent;border:2px dashed var(--accent);color:var(--accent);border-radius:12px;padding:9px;font:inherit;cursor:pointer}

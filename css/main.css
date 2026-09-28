@@ -1,0 +1,10 @@
+:root{--wall:#a5d8b6;--wall2:#8cc7a0;--panel:#f6faf4;--text:#1f2d27;--line:#c5dccb;--ink:#2b2f9c;--accent:#2b2f9c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--wall:#35624b;--wall2:#2b5240;--panel:#1c2a23;--text:#e8f2ec;--line:#37524a;--accent:#9db0ff}}
+:root[data-theme="dark"]{--wall:#35624b;--wall2:#2b5240;--panel:#1c2a23;--text:#e8f2ec;--line:#37524a;--accent:#9db0ff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--wall2);color:var(--text);font:18px/1.35 "Patrick Hand","Segoe Print","Comic Sans MS",sans-serif}
+main{max-width:980px;margin:0 auto;display:grid;gap:0}
+@media(min-width:800px){main{grid-template-columns:1.1fr 1fr;min-height:100vh;align-items:start}}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}

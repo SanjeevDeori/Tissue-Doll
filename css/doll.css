@@ -1,0 +1,26 @@
+.stage{position:relative;background:radial-gradient(120% 90% at 30% 20%,var(--wall),var(--wall2));padding:16px 12px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:62vh;transition:background .6s}
+@media(min-width:800px){.stage{position:sticky;top:0;height:100vh;min-height:100vh}}
+h1{font:400 clamp(32px,7vw,48px)/1 "Caveat Brush","Patrick Hand",cursive;margin:4px 0 0;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.18);align-self:flex-start}
+.sub{align-self:flex-start;margin:2px 0 0;color:#fff;opacity:.92}
+#dollBtn{background:none;border:0;padding:0;cursor:pointer;width:min(88vw,380px);border-radius:24px}
+#dollBtn:focus-visible{outline:3px dashed #fff;outline-offset:4px}
+svg{width:100%;height:auto;display:block;overflow:visible}
+.crack svg{width:36px}
+.stage.haunted{background:radial-gradient(90% 75% at 50% 35%,#24402f 0%,#08120d 70%,#020504)}
+.stage.haunted::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,transparent 40%,rgba(0,0,0,.75));pointer-events:none;animation:flick 5s infinite}
+.haunted h1,.haunted .sub{color:#d9ffe8}.haunted h1{text-shadow:0 0 12px #ff2a2a88}
+.haunted #bubble{background:#0a0f0c;color:#ff8a8a;border-color:#ff4a4a}
+#bubble.whisper{font-style:italic;font-size:16px}
+.crack{position:absolute;width:36px;height:36px;padding:0;border:0;background:none;cursor:pointer;opacity:.35;z-index:2}
+.crack:hover,.crack:focus-visible{opacity:1}
+#c1{top:24%;left:8%}#c2{bottom:14%;right:10%}
+#found{position:absolute;bottom:8px;left:12px;font-size:14px;color:#fff;opacity:.55}
+@media(max-width:799px){
+ main{grid-template-columns:minmax(0,1fr)}
+ html{scroll-padding-top:calc(42svh + 12px)}
+ .stage{position:sticky;top:0;z-index:5;height:42svh;min-height:310px;max-height:380px;padding:8px 12px;justify-content:center;box-shadow:0 5px 18px rgba(0,0,0,.16)}
+ h1{font-size:32px}.sub{font-size:16px}
+ #dollBtn{width:min(48vw,24svh,210px)}
+ .panel .grp{scroll-margin-top:calc(42svh + 12px)}
+ #found{font-size:12px}
+}
