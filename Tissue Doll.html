@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tissue Doll</title>
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Caveat+Brush&display=swap" rel="stylesheet">
+<style>
+:root{--wall:#a5d8b6;--wall2:#8cc7a0;--panel:#f6faf4;--text:#1f2d27;--line:#c5dccb;--ink:#2b2f9c;--accent:#2b2f9c;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--wall:#35624b;--wall2:#2b5240;--panel:#1c2a23;--text:#e8f2ec;--line:#37524a;--accent:#9db0ff}}
+:root[data-theme="dark"]{--wall:#35624b;--wall2:#2b5240;--panel:#1c2a23;--text:#e8f2ec;--line:#37524a;--accent:#9db0ff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--wall2);color:var(--text);font:18px/1.35 "Patrick Hand","Segoe Print","Comic Sans MS",sans-serif}
+main{max-width:980px;margin:0 auto;display:grid;gap:0}
+@media(min-width:800px){main{grid-template-columns:1.1fr 1fr;min-height:100vh}}
+.stage{position:relative;background:radial-gradient(120% 90% at 30% 20%,var(--wall),var(--wall2));padding:16px 12px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:62vh}
+h1{font:400 clamp(32px,7vw,48px)/1 "Caveat Brush","Patrick Hand",cursive;margin:4px 0 0;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.18);align-self:flex-start}
+.sub{align-self:flex-start;margin:2px 0 0;color:#fff;opacity:.92}
+#bubble{min-height:58px;max-width:320px;margin:10px 0 0;padding:10px 14px;background:#fffef8;color:#1f2d27;border:2px solid #2b2f9c;border-radius:16px 16px 16px 4px;transform:scale(.9);opacity:0;transition:.25s;align-self:center}
+#bubble.on{opacity:1;transform:none}
+#dollBtn{background:none;border:0;padding:0;cursor:pointer;width:min(88vw,380px);border-radius:24px}
+#dollBtn:focus-visible{outline:3px dashed #fff;outline-offset:4px}
+svg{width:100%;height:auto;display:block;overflow:visible}
+.crack svg{width:36px}
+svg *{transition:transform .5s ease}
+#upper,#skirt,#armL,#armR,#figure{transform-origin:150px 150px}
+#armL{transform-origin:130px 108px}#armR{transform-origin:170px 108px}
+.pose-idle #figure{animation:breathe 4s ease-in-out infinite}
+.pose-wave #armR{animation:wave .7s ease-in-out infinite alternate}
+.pose-twirl #armL{transform:rotate(75deg)}.pose-twirl #armR{transform:rotate(-75deg)}
+.pose-twirl #skirt{animation:spin .9s ease-in-out infinite alternate}
+.pose-twirl #figure{animation:hop .9s ease-in-out infinite alternate}
+.pose-bow #upper{transform:rotate(22deg)}
+.pose-dance #figure{transform-origin:150px 300px;animation:sway 1s ease-in-out infinite alternate}
+.pose-dance #armL{animation:wave2 .5s ease-in-out infinite alternate}.pose-dance #armR{animation:wave .5s ease-in-out infinite alternate}
+.rebooting #figure{animation:crumple .6s ease both!important}
+@keyframes breathe{50%{transform:translateY(-3px)}}
+@keyframes wave{from{transform:rotate(-100deg)}to{transform:rotate(-62deg)}}
+@keyframes wave2{from{transform:rotate(100deg)}to{transform:rotate(62deg)}}
+@keyframes spin{from{transform:scaleX(1)}to{transform:scaleX(.35)}}
+@keyframes hop{to{transform:translateY(-10px)}}
+@keyframes sway{from{transform:rotate(-6deg)}to{transform:rotate(6deg)}}
+@keyframes crumple{40%{transform:scale(.2,.4) rotate(20deg);opacity:.2}100%{transform:none}}
+.panel{background:var(--panel);padding:18px 16px 28px;display:grid;gap:14px;align-content:start}
+.grp h2{font:400 20px/1 "Caveat Brush","Patrick Hand",cursive;margin:0 0 6px;color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;color:var(--text);background:transparent;border:2px solid var(--line);border-radius:999px;padding:5px 13px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] .chip[aria-pressed="true"]{color:#12201a}
+.sw{width:34px;height:34px;padding:0;border-radius:50%;border:3px solid var(--line)}
+.sw[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--panel) inset}
+.row{display:flex;gap:8px}
+input{flex:1;min-width:0;font:inherit;padding:8px 12px;border:2px solid var(--line);border-radius:12px;background:transparent;color:var(--text)}
+.go{font:inherit;background:var(--accent);color:#fff;border:0;border-radius:12px;padding:8px 16px;cursor:pointer}
+:root[data-theme="dark"] .go{color:#12201a}
+.reboot{background:transparent;border:2px dashed var(--accent);color:var(--accent);border-radius:12px;padding:9px;font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.stage{transition:background .6s}
+.stage.haunted{background:radial-gradient(90% 75% at 50% 35%,#24402f 0%,#08120d 70%,#020504)}
+.stage.haunted::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,transparent 40%,rgba(0,0,0,.75));pointer-events:none;animation:flick 5s infinite}
+.haunted h1,.haunted .sub{color:#d9ffe8}.haunted h1{text-shadow:0 0 12px #ff2a2a88}
+.haunted #bubble{background:#0a0f0c;color:#ff8a8a;border-color:#ff4a4a}
+#bubble.whisper{font-style:italic;font-size:16px}
+.haunted #doll{animation:twitch 7s steps(1) infinite}
+.crack{position:absolute;width:36px;height:36px;padding:0;border:0;background:none;cursor:pointer;opacity:.35;z-index:2}
+.crack:hover,.crack:focus-visible{opacity:1}
+#c1{top:24%;left:8%}#c2{bottom:14%;right:10%}
+#found{position:absolute;bottom:8px;left:12px;font-size:14px;color:#fff;opacity:.55}
+.p{transition:none!important}
+@keyframes twitch{0%,92%,100%{transform:none}93%{transform:translate(2px,-1px) rotate(1deg)}95%{transform:translate(-3px,1px) rotate(-1.5deg)}97%{transform:translate(1px,0)}}
+@keyframes flick{0%,100%{opacity:1}47%{opacity:1}50%{opacity:.35}53%{opacity:1}75%{opacity:.7}78%{opacity:1}}
+@keyframes rise{to{transform:translateY(-130px);opacity:0}}
+@keyframes fall{to{transform:translate(18px,300px);opacity:0}}
+@keyframes drift{to{transform:translate(var(--dx),-70px) scale(2.2);opacity:0}}
+@keyframes rain{to{transform:translateY(320px)}}
+@keyframes flash{to{opacity:0}}
+</style>
+</head>
+<body>
+<main>
+<section class="stage">
+  <h1>Tissue Doll</h1>
+  <p class="sub">Tap her to talk. Give her a new role.</p>
+  <div id="bubble" role="status" aria-live="polite"></div>
+  <button id="dollBtn" aria-label="Make the doll talk">
+  <svg id="doll" class="pose-idle" viewBox="0 0 300 330" aria-hidden="true">
+    <ellipse cx="150" cy="322" rx="78" ry="6" fill="#000" opacity=".14"/>
+    <g id="figure">
+      <g id="skirt">
+        <path d="M128 150L172 150C200 165 250 220 262 262Q200 288 150 282Q90 288 38 262C50 220 100 165 128 150Z" fill="var(--dress)" stroke="#dfe6df" stroke-width="1.5"/>
+        <g stroke="#000" stroke-opacity=".09" stroke-width="2" fill="none"><path d="M140 155Q110 220 84 270"/><path d="M150 155L150 280"/><path d="M160 155Q190 220 218 270"/><path d="M132 155Q70 210 52 262"/></g>
+        <path d="M38 262Q90 288 150 282Q200 288 262 262" fill="none" stroke="var(--ink)" stroke-width="2.6" stroke-dasharray="7 2 3 2" stroke-linecap="round"/>
+        <g id="tatter" style="display:none"></g>
+        <g id="marks" stroke="var(--ink)" fill="none" stroke-width="2" stroke-linecap="round"></g>
+      </g>
+      <g id="upper">
+        <g id="armL"><path d="M130 108Q98 112 84 140Q78 155 74 172" fill="none" stroke="#fbfbf6" stroke-width="10" stroke-linecap="round"/><path d="M130 108Q98 112 84 140Q78 155 74 172" fill="none" stroke="#cfd8cf" stroke-width="10" stroke-linecap="round" stroke-dasharray="2 6"/></g>
+        <g id="armR"><path d="M170 108Q202 112 216 140Q222 155 226 172" fill="none" stroke="#fbfbf6" stroke-width="10" stroke-linecap="round"/><path d="M170 108Q202 112 216 140Q222 155 226 172" fill="none" stroke="#cfd8cf" stroke-width="10" stroke-linecap="round" stroke-dasharray="2 6"/></g>
+        <rect x="128" y="100" width="44" height="52" rx="3" fill="var(--dress)" stroke="#dfe6df" stroke-width="1.5"/>
+        <path d="M128 104L172 104" stroke="var(--ink)" stroke-width="2" stroke-dasharray="5 3"/>
+        <path d="M144 80L146 102L154 102L156 80Z" fill="#fbfbf6" stroke="#dfe6df"/>
+        <g id="braids" stroke-linecap="round" fill="none"><path d="M124 58Q108 80 118 106" stroke="#fbfbf6" stroke-width="8"/><path d="M124 58Q108 80 118 106" stroke="#cfd8cf" stroke-width="8" stroke-dasharray="2 5"/><path d="M176 58Q192 80 182 106" stroke="#fbfbf6" stroke-width="8"/><path d="M176 58Q192 80 182 106" stroke="#cfd8cf" stroke-width="8" stroke-dasharray="2 5"/></g>
+        <path d="M124 58Q122 34 146 32Q172 30 176 54Q178 76 152 82Q126 84 124 58Z" fill="#fbfbf6" stroke="#dfe6df" stroke-width="1.5"/>
+        <path d="M134 40Q150 36 164 42M130 70Q142 78 158 76" stroke="#000" stroke-opacity=".08" fill="none" stroke-width="2"/>
+        <g id="face" fill="none" stroke="#141414" stroke-width="2.2" stroke-linecap="round"></g>
+        <g id="acc"></g>
+      </g>
+    </g>
+    <g id="fx" pointer-events="none"></g>
+  </svg>
+  </button>
+  <button class="crack" id="c1" aria-label="Crack in the wall"><svg viewBox="0 0 36 36" width="36" height="36" aria-hidden="true"><path d="M4 6L14 16L10 22L24 32M14 16L28 12" fill="none" stroke="#000" stroke-opacity=".55" stroke-width="2" stroke-linecap="round"/></svg></button>
+  <button class="crack" id="c2" aria-label="Another crack in the wall"><svg viewBox="0 0 36 36" width="36" height="36" aria-hidden="true"><path d="M4 6L14 16L10 22L24 32M14 16L28 12" fill="none" stroke="#000" stroke-opacity=".55" stroke-width="2" stroke-linecap="round"/></svg></button>
+  <div id="found">Secrets 0/5</div>
+</section>
+
+<section class="panel" id="panel">
+  <div class="grp"><h2>Say something</h2><div class="row"><input id="say" placeholder="Write her a line" maxlength="80" aria-label="Custom line"><button class="go" id="sayGo">Say it</button></div></div>
+</section>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const DEF={role:'Ballerina',pose:'idle',expr:'smile',acc:'none',dress:'#fbfbf6',ink:'#2b2f9c',pattern:'cherry',braids:true,element:'none',haunt:false};
+const BASE={element:'none',haunt:false};
+const st={...DEF};
+const ROLES={
+ Ballerina:{pose:'twirl',acc:'bow',dress:'#fbfbf6',pattern:'cherry',expr:'happy',lines:["Watch me spin!","One more pirouette, then tea.","Paper is light. So am I."]},
+ Queen:{pose:'bow',acc:'crown',dress:'#c9b5f0',pattern:'star',expr:'smile',lines:["By decree of the green wall: snack time.","Bow. Not too low, I'm tissue.","My kingdom is one sticky tab wide."]},
+ Explorer:{pose:'wave',acc:'hat',dress:'#e6dca8',pattern:'dot',expr:'surprised',lines:["Map says the shelf is unexplored.","Back before the fan turns on.","That crack in the wall? A cave."]},
+ Storyteller:{pose:'idle',acc:'flower',dress:'#bfe0f5',pattern:'star',expr:'wink',lines:["Once, a napkin wanted to dance.","Turn the page. Actually, turn me.","Every story starts with a fold."]},
+ Phantom:{pose:'idle',acc:'none',dress:'#d9dbd6',pattern:'none',expr:'creepy',element:'shadow',haunt:true,lines:["Do you hear paper rustling?","I'm not folded. I'm waiting.","Don't turn the light off.","The wall remembers every tear."]}
+};
+const HAUNT=["Do you hear paper rustling?","I'm not folded. I'm waiting.","Don't turn the light off.","The wall remembers every tear.","I was smiling. Was I?","Something is behind you. It's the wall."];
+const ELS={
+ fire:{g:'#ff6a00',l:"Careful. I'm made of paper."},
+ ice:{g:'#5bc8ff',l:"Frost on tissue. Crunchy."},
+ storm:{g:'#b9a3ff',l:"Thunder is rolling over the wall."},
+ shadow:{g:'#9b2cd6',l:"The dark has a seam."}
+};
+const FACES={
+ smile:'<circle cx="140" cy="54" r="2" fill="#141414"/><circle cx="160" cy="54" r="2" fill="#141414"/><path d="M136 49l-4-3M164 49l4-3"/><path d="M141 66Q150 76 159 66" fill="#141414"/>',
+ happy:'<path d="M135 56Q140 49 145 56M155 56Q160 49 165 56"/><path d="M141 65Q150 80 159 65Z" fill="#141414"/>',
+ wink:'<circle cx="140" cy="54" r="2" fill="#141414"/><path d="M155 55Q160 50 165 55"/><path d="M142 66Q150 74 160 65"/>',
+ surprised:'<circle cx="140" cy="54" r="3.5"/><circle cx="160" cy="54" r="3.5"/><ellipse cx="150" cy="69" rx="4" ry="5" fill="#141414"/>',
+ sleepy:'<path d="M135 55H145M155 55H165"/><path d="M145 68Q150 70 155 68"/><text x="168" y="44" font-size="12" fill="#141414" stroke="none">z</text>',
+ creepy:'<ellipse cx="140" cy="54" rx="4" ry="6.5" fill="#0a0a0a"/><ellipse cx="160" cy="54" rx="4" ry="6.5" fill="#0a0a0a"/><circle cx="140" cy="55" r="1.5" fill="#ff2a2a" stroke="none"/><circle cx="160" cy="55" r="1.5" fill="#ff2a2a" stroke="none"/><path d="M133 66L138 72L143 66L148 72L153 66L158 72L163 66L167 69"/><path d="M132 44L146 47M168 44L154 47"/>'
+};
+const ACCS={
+ none:'',
+ crown:'<path d="M130 38L134 18L144 30L150 14L156 30L166 18L170 38Z" fill="#f2c94c" stroke="#b8901c" stroke-width="1.5"/><circle cx="150" cy="24" r="2.5" fill="#e45"/>',
+ bow:'<path d="M158 34L140 24L140 44Z M158 34L176 24L176 44Z" fill="#f28fae" stroke="#c45f80" stroke-width="1.5"/><circle cx="158" cy="34" r="4" fill="#e0688f"/>',
+ hat:'<ellipse cx="150" cy="38" rx="34" ry="7" fill="#c9a66b" stroke="#8d6f3c" stroke-width="1.5"/><path d="M128 38Q130 14 150 14Q170 14 172 38Z" fill="#d8b77d" stroke="#8d6f3c" stroke-width="1.5"/><path d="M130 32H170" stroke="#8d6f3c" stroke-width="3"/>',
+ flower:'<g stroke="#b95a86" stroke-width="1.2"><circle cx="170" cy="34" r="5" fill="#f7a8c8"/><circle cx="180" cy="38" r="5" fill="#f7a8c8"/><circle cx="176" cy="46" r="5" fill="#f7a8c8"/><circle cx="165" cy="44" r="5" fill="#f7a8c8"/><circle cx="173" cy="40" r="4" fill="#ffd45e"/></g>'
+};
+const POS=[[190,240],[110,238],[150,262],[218,256],[84,256],[160,205]];
+const MARK={
+ none:()=>'',
+ dot:(x,y)=>`<circle cx="${x}" cy="${y}" r="3" fill="var(--ink)"/>`,
+ star:(x,y)=>`<path d="M${x} ${y-6}V${y+6}M${x-6} ${y}H${x+6}M${x-4} ${y-4}L${x+4} ${y+4}M${x+4} ${y-4}L${x-4} ${y+4}"/>`,
+ cherry:(x,y)=>`<path d="M${x-5} ${y+2}Q${x-2} ${y-10} ${x+4} ${y-12}M${x+6} ${y+2}Q${x+6} ${y-8} ${x+4} ${y-12}"/><circle cx="${x-5}" cy="${y+4}" r="4" fill="var(--ink)"/><circle cx="${x+6}" cy="${y+4}" r="4" fill="var(--ink)"/>`
+};
+const SW={dress:['#fbfbf6','#f7c6d3','#bfe0f5','#fbeaa0','#c9b5f0','#e6dca8','#d9dbd6'],ink:['#2b2f9c','#141414','#c22b4b','#1b7a4e']};
+const GROUPS=[
+ ['Role','role',Object.keys(ROLES).map(k=>[k,k])],
+ ['Element','element',[['none','None'],['fire','Fire'],['ice','Ice'],['storm','Storm'],['shadow','Shadow']]],
+ ['Mood','haunt',[[false,'Sweet'],[true,'Haunted']]],
+ ['Pose','pose',[['idle','Stand'],['wave','Wave'],['twirl','Twirl'],['bow','Bow'],['dance','Sway']]],
+ ['Face','expr',[['smile','Smile'],['happy','Happy'],['wink','Wink'],['surprised','Surprised'],['sleepy','Sleepy'],['creepy','Creepy']]],
+ ['Headwear','acc',[['none','None'],['bow','Bow'],['crown','Crown'],['hat','Hat'],['flower','Flower']]],
+ ['Dress','dress',SW.dress],
+ ['Pen ink','ink',SW.ink],
+ ['Doodles','pattern',[['none','None'],['cherry','Cherries'],['star','Stars'],['dot','Dots']]],
+ ['Braids','braids',[[true,'On'],[false,'Off']]]
+];
+const panel=$('#panel');
+GROUPS.forEach(([title,key,opts])=>{
+  const g=document.createElement('div');g.className='grp';
+  g.innerHTML=`<h2>${title}</h2><div class="chips" data-k="${key}"></div>`;
+  const c=g.querySelector('.chips'),isSw=key==='dress'||key==='ink';
+  opts.forEach(o=>{
+    const b=document.createElement('button'),val=isSw?o:o[0];
+    b.className=isSw?'chip sw':'chip';
+    if(isSw){b.style.background=o;b.setAttribute('aria-label',title+' '+o)}else b.textContent=o[1];
+    b.dataset.v=String(val);
+    b.onclick=()=>choose(key,val);
+    c.appendChild(b);
+  });
+  panel.appendChild(g);
+});
+const rb=document.createElement('button');rb.className='reboot';rb.textContent='Reboot her';rb.onclick=reboot;panel.appendChild(rb);
+
+let timer,idx=0;
+function say(t,w){const b=$('#bubble');b.textContent=t;b.classList.toggle('whisper',!!w);b.classList.add('on');clearTimeout(timer);timer=setTimeout(()=>b.classList.remove('on'),5500)}
+function talk(){const L=st.haunt?HAUNT:ROLES[st.role].lines;say(L[idx++%L.length],st.haunt)}
+function choose(k,v){
+  if(k==='role'){Object.assign(st,BASE,ROLES[v],{role:v});delete st.lines;idx=0;apply();talk();return}
+  if(k==='haunt'){st.haunt=v;st.expr=v?'creepy':'smile';apply();say(v?"You shouldn't have dimmed the light.":"Phew. Back to cute.",v);return}
+  if(k==='element'){st.element=v;apply();say(ELS[v]?ELS[v].l:"The air goes quiet.");return}
+  st[k]=v;apply();
+  if(k==='pose')say({idle:"Just standing. Very paper.",wave:"Hi there!",twirl:"Whee!",bow:"Thank you, thank you.",dance:"Feel the breeze."}[v]);
+}
+function apply(){
+  const D=$('#doll'),s=D.style,g=ELS[st.element];
+  s.setProperty('--dress',st.dress);s.setProperty('--ink',st.ink);
+  D.setAttribute('class','pose-'+st.pose);
+  $('#face').innerHTML=FACES[st.expr];
+  $('#acc').innerHTML=ACCS[st.acc];
+  $('#marks').innerHTML=st.pattern==='none'?'':POS.map(p=>MARK[st.pattern](...p)).join('');
+  $('#braids').style.display=st.braids?'':'none';
+  $('#figure').style.filter=g?`drop-shadow(0 0 9px ${g.g})`:st.haunt?'drop-shadow(0 0 7px rgba(255,40,40,.45))':'';
+  $('.stage').classList.toggle('haunted',st.haunt);
+  $('#tatter').style.display=st.haunt?'':'none';
+  $('.sub').textContent=st.haunt?"Don't tap her. Or do.":"Tap her to talk. Give her a new role.";
+  document.querySelectorAll('.chips').forEach(c=>c.querySelectorAll('button').forEach(b=>{
+    b.setAttribute('aria-pressed',b.dataset.v===String(st[c.dataset.k]))}));
+}
+function reboot(){
+  const d=$('#doll');d.classList.add('rebooting');
+  setTimeout(()=>{Object.assign(st,DEF);idx=0;apply();d.classList.add('rebooting');say("Rebooted. Fresh off the napkin stack.");
+    setTimeout(()=>d.classList.remove('rebooting'),650)},300);
+}
+
+/* ragged hem for haunted mode */
+(function(){
+  const q=(a,b,c,t)=>{const u=1-t;return u*u*a+2*u*t*b+t*t*c};
+  const base=[],jag=[];
+  [[38,90,150,262,288,282],[150,200,262,282,288,262]].forEach(([x0,cx,x1,y0,cy,y1],n)=>{
+    for(let i=n?1:0;i<=8;i++){const t=i/8,x=q(x0,cx,x1,t),y=q(y0,cy,y1,t);base.push([x,y]);jag.push([x,y+(i%2?15:2)])}
+  });
+  const pts=jag.concat(base.slice().reverse()).map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L');
+  $('#tatter').innerHTML=`<path d="M${pts}Z" fill="var(--dress)" stroke="var(--ink)" stroke-width="1.4" stroke-dasharray="3 3"/>`;
+})();
+
+/* element particles */
+const NS='http://www.w3.org/2000/svg',R=(a,b)=>a+Math.random()*(b-a);
+const mk=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e};
+function bolt(){
+  let x=R(60,240),y=0,p=`M${x} 0`;
+  while(y<230){x+=R(-16,16);y+=R(18,34);p+=`L${x} ${y}`}
+  const b=mk('path',{d:p,fill:'none',stroke:'#fff6a8','stroke-width':3,'stroke-linejoin':'round'});
+  b.classList.add('p');b.style.animation='flash .35s ease-out forwards';$('#fx').appendChild(b);setTimeout(()=>b.remove(),400);
+  const s=$('.stage');s.style.filter='brightness(1.7)';setTimeout(()=>s.style.filter='',120);
+}
+setInterval(()=>{
+  if(st.element==='none'||document.hidden)return;
+  let e,an,d=R(1.2,2);
+  if(st.element==='fire'){e=mk('circle',{cx:R(70,230),cy:R(240,300),r:R(2,4.5),fill:Math.random()<.5?'#ff8a1f':'#ffd23f'});an='rise'}
+  else if(st.element==='ice'){e=mk('circle',{cx:R(40,260),cy:R(0,40),r:R(1.5,3.5),fill:'#e8f8ff'});an='fall'}
+  else if(st.element==='shadow'){e=mk('circle',{cx:R(70,230),cy:R(150,290),r:R(5,12),fill:'#1a0d24','fill-opacity':.55});an='drift';e.style.setProperty('--dx',R(-30,30)+'px')}
+  else{if(Math.random()<.1){bolt();return}e=mk('rect',{x:R(20,280),y:R(0,30),width:1.6,height:14,fill:'#9ec9ff'});an='rain';d=.7}
+  e.classList.add('p');e.style.animation=`${an} ${d}s linear forwards`;$('#fx').appendChild(e);
+  setTimeout(()=>e.remove(),d*1000+50);
+},110);
+
+/* hidden messages */
+const found=new Set();
+function secret(id,msg){
+  say(msg,true);
+  if(!found.has(id)){found.add(id);$('#found').textContent='Secrets '+found.size+'/5';if(found.size===5)setTimeout(finale,4500)}
+}
+function finale(){
+  Object.assign(st,{acc:'crown',dress:'#f2d36b',element:'fire',haunt:false,expr:'happy',pose:'twirl'});apply();
+  say("All five found. You made me real. Thank you.",true);
+}
+$('#c1').onclick=()=>secret('c1',"psst... the third fold is where I hide.");
+$('#c2').onclick=()=>secret('c2',"Look closer at my dress. Count the cherries.");
+let taps=[],held=false,holdT;
+const btn=$('#dollBtn');
+btn.onpointerdown=()=>{held=false;holdT=setTimeout(()=>{held=true;secret('hold',"You held on. Nobody holds on. Hello, friend.")},1500)};
+['pointerup','pointerleave','pointercancel'].forEach(e=>btn.addEventListener(e,()=>clearTimeout(holdT)));
+btn.onclick=()=>{
+  if(held){held=false;return}
+  const n=Date.now();taps=taps.filter(t=>n-t<3000);taps.push(n);
+  if(taps.length>=7){taps=[];secret('taps',"Seven taps. You found the seam. Fold me gently.")}else talk();
+};
+const WORDS={hello:"Hello, stranger! Greetings from the other side of the napkin.",boo:"BOO! ...did that work?",napkin:"Fun fact: I was one flat sheet, folded eight times.","who are you":"Whoever you cast me as."};
+$('#sayGo').onclick=()=>{
+  const v=$('#say').value.trim();if(!v)return;$('#say').value='';
+  const k=v.toLowerCase();
+  if(ELS[k]){st.element=k;apply();return secret('word',ELS[k].l)}
+  if(k==='haunt'){st.haunt=true;st.expr='creepy';apply();return secret('word',"Knock, knock. Who's there? Me.")}
+  if(k==='reboot')return reboot();
+  if(WORDS[k])return secret('word',WORDS[k]);
+  say(v);
+};
+$('#say').onkeydown=e=>{if(e.key==='Enter')$('#sayGo').click()};
+setInterval(()=>{if(st.haunt&&!document.hidden)say(HAUNT[Math.floor(Math.random()*HAUNT.length)],true)},22000);
+
+apply();
+const h=new Date().getHours();
+say((h<5?"Still awake? Me too.":h<12?"Good morning!":h<18?"Good afternoon!":"Good evening!")+" Pick a role for me.");
+</script>
+</body>
+</html>
