@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tissue Doll</title>
+<title>Snowie | Tissue Doll</title>
 <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Caveat+Brush&display=swap" rel="stylesheet">
 <style>
 :root{--wall:#a5d8b6;--wall2:#8cc7a0;--panel:#f6faf4;--text:#1f2d27;--line:#c5dccb;--ink:#2b2f9c;--accent:#2b2f9c;
@@ -14,12 +14,15 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--wall2);color:var(--text);font:18px/1.35 "Patrick Hand","Segoe Print","Comic Sans MS",sans-serif}
 main{max-width:980px;margin:0 auto;display:grid;gap:0}
-@media(min-width:800px){main{grid-template-columns:1.1fr 1fr;min-height:100vh}}
+@media(min-width:800px){main{grid-template-columns:1.1fr 1fr;min-height:100vh;align-items:start}.stage{position:sticky;top:0;height:100vh;min-height:100vh}}
 .stage{position:relative;background:radial-gradient(120% 90% at 30% 20%,var(--wall),var(--wall2));padding:16px 12px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:62vh}
 h1{font:400 clamp(32px,7vw,48px)/1 "Caveat Brush","Patrick Hand",cursive;margin:4px 0 0;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.18);align-self:flex-start}
 .sub{align-self:flex-start;margin:2px 0 0;color:#fff;opacity:.92}
 #bubble{min-height:58px;max-width:320px;margin:10px 0 0;padding:10px 14px;background:#fffef8;color:#1f2d27;border:2px solid #2b2f9c;border-radius:16px 16px 16px 4px;transform:scale(.9);opacity:0;transition:.25s;align-self:center}
 #bubble.on{opacity:1;transform:none}
+#bubble:empty{display:none}
+#youWhisper{max-width:300px;margin:8px 0 0;padding:4px 10px;color:#fff;background:#244d3b99;border-radius:12px;font-size:15px;align-self:center}
+#youWhisper:empty{display:none}
 #dollBtn{background:none;border:0;padding:0;cursor:pointer;width:min(88vw,380px);border-radius:24px}
 #dollBtn:focus-visible{outline:3px dashed #fff;outline-offset:4px}
 svg{width:100%;height:auto;display:block;overflow:visible}
@@ -35,6 +38,12 @@ svg *{transition:transform .5s ease}
 .pose-bow #upper{transform:rotate(22deg)}
 .pose-dance #figure{transform-origin:150px 300px;animation:sway 1s ease-in-out infinite alternate}
 .pose-dance #armL{animation:wave2 .5s ease-in-out infinite alternate}.pose-dance #armR{animation:wave .5s ease-in-out infinite alternate}
+.speaking #figure{animation:speak-bob .42s ease-in-out infinite alternate}
+.talk-mouth{display:none}
+.speaking #face .talk-mouth{display:block;animation:mouth .18s ease-in-out infinite alternate}
+.blinking #face{transform-box:fill-box;transform-origin:center;animation:blink .18s ease-in-out}
+.happy-pop #figure{animation:hop .55s ease-out 2}
+.scared-shake #figure{animation:shake .16s linear 5}
 .rebooting #figure{animation:crumple .6s ease both!important}
 @keyframes breathe{50%{transform:translateY(-3px)}}
 @keyframes wave{from{transform:rotate(-100deg)}to{transform:rotate(-62deg)}}
@@ -42,6 +51,10 @@ svg *{transition:transform .5s ease}
 @keyframes spin{from{transform:scaleX(1)}to{transform:scaleX(.35)}}
 @keyframes hop{to{transform:translateY(-10px)}}
 @keyframes sway{from{transform:rotate(-6deg)}to{transform:rotate(6deg)}}
+@keyframes speak-bob{from{transform:translateY(0)}to{transform:translateY(-3px)}}
+@keyframes mouth{to{ry:4}}
+@keyframes blink{50%{transform:scaleY(.08)}}
+@keyframes shake{25%{transform:translateX(-3px) rotate(-1deg)}75%{transform:translateX(3px) rotate(1deg)}}
 @keyframes crumple{40%{transform:scale(.2,.4) rotate(20deg);opacity:.2}100%{transform:none}}
 .panel{background:var(--panel);padding:18px 16px 28px;display:grid;gap:14px;align-content:start}
 .grp h2{font:400 20px/1 "Caveat Brush","Patrick Hand",cursive;margin:0 0 6px;color:var(--accent)}
@@ -53,12 +66,40 @@ svg *{transition:transform .5s ease}
 .sw[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--panel) inset}
 .row{display:flex;gap:8px}
 input{flex:1;min-width:0;font:inherit;padding:8px 12px;border:2px solid var(--line);border-radius:12px;background:transparent;color:var(--text)}
+select{max-width:100%;font:inherit;padding:7px 10px;border:2px solid var(--line);border-radius:12px;background:var(--panel);color:var(--text)}
 .go{font:inherit;background:var(--accent);color:#fff;border:0;border-radius:12px;padding:8px 16px;cursor:pointer}
 :root[data-theme="dark"] .go{color:#12201a}
+.chat{display:grid;gap:8px}
+.chat h2{font:400 20px/1 "Caveat Brush","Patrick Hand",cursive;margin:0;color:var(--accent)}
+.chat-tools{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.icon-btn{font:inherit;color:var(--text);background:transparent;border:2px solid var(--line);border-radius:12px;padding:7px 10px;cursor:pointer;min-height:42px}
+.icon-btn[disabled]{opacity:.45;cursor:not-allowed}
+.chat-status{min-height:20px;color:var(--accent);font-size:15px}
+.quick-play{display:flex;flex-wrap:wrap;gap:6px}
+.quick-play button{font:inherit;color:var(--text);background:transparent;border:1px dashed var(--line);border-radius:999px;padding:4px 10px;cursor:pointer}
+.quick-play button:hover{border-color:var(--accent)}
+.mood-line{font-size:15px;color:var(--accent)}
+.chat-tools label{color:var(--accent)}
+#voiceStatus{font-size:14px;overflow-wrap:anywhere}
+.snowflake{position:absolute;left:50%;top:40%;z-index:3;font-size:26px;pointer-events:none;animation:snowball .65s ease-in forwards}
+@keyframes snowball{to{transform:translate(34px,75px) rotate(220deg) scale(.65);opacity:0}}
 .reboot{background:transparent;border:2px dashed var(--accent);color:var(--accent);border-radius:12px;padding:9px;font:inherit;cursor:pointer}
 button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media(max-width:799px){
+ main{grid-template-columns:minmax(0,1fr)}
+ html{scroll-padding-top:calc(42svh + 12px)}
+ .stage{position:sticky;top:0;z-index:5;height:42svh;min-height:310px;max-height:380px;padding:8px 12px;justify-content:center;box-shadow:0 5px 18px rgba(0,0,0,.16)}
+ h1{font-size:32px}
+ .sub{font-size:16px}
+ #bubble{max-width:min(84vw,320px);max-height:68px;min-height:0;margin:4px 0 0;padding:7px 10px;font-size:16px;overflow:auto}
+ #youWhisper{max-width:min(84vw,320px);margin:4px 0 0;font-size:14px}
+ #dollBtn{width:min(48vw,24svh,210px)}
+ .panel .grp{scroll-margin-top:calc(42svh + 12px)}
+ #found{font-size:12px}
+}
 .stage{transition:background .6s}
+@media(min-width:800px){.stage{position:sticky;top:0;height:100vh;min-height:100vh}}
 .stage.haunted{background:radial-gradient(90% 75% at 50% 35%,#24402f 0%,#08120d 70%,#020504)}
 .stage.haunted::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,transparent 40%,rgba(0,0,0,.75));pointer-events:none;animation:flick 5s infinite}
 .haunted h1,.haunted .sub{color:#d9ffe8}.haunted h1{text-shadow:0 0 12px #ff2a2a88}
@@ -82,19 +123,22 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 <body>
 <main>
 <section class="stage">
-  <h1>Tissue Doll</h1>
-  <p class="sub">Tap her to talk. Give her a new role.</p>
+  <h1>Snowie</h1>
+  <p class="sub">A little paper soul with big opinions.</p>
   <div id="bubble" role="status" aria-live="polite"></div>
+  <div id="youWhisper" aria-live="polite"></div>
   <button id="dollBtn" aria-label="Make the doll talk">
   <svg id="doll" class="pose-idle" viewBox="0 0 300 330" aria-hidden="true">
     <ellipse cx="150" cy="322" rx="78" ry="6" fill="#000" opacity=".14"/>
     <g id="figure">
+      <g id="shoes"></g>
       <g id="skirt">
         <path d="M128 150L172 150C200 165 250 220 262 262Q200 288 150 282Q90 288 38 262C50 220 100 165 128 150Z" fill="var(--dress)" stroke="#dfe6df" stroke-width="1.5"/>
         <g stroke="#000" stroke-opacity=".09" stroke-width="2" fill="none"><path d="M140 155Q110 220 84 270"/><path d="M150 155L150 280"/><path d="M160 155Q190 220 218 270"/><path d="M132 155Q70 210 52 262"/></g>
         <path d="M38 262Q90 288 150 282Q200 288 262 262" fill="none" stroke="var(--ink)" stroke-width="2.6" stroke-dasharray="7 2 3 2" stroke-linecap="round"/>
         <g id="tatter" style="display:none"></g>
         <g id="marks" stroke="var(--ink)" fill="none" stroke-width="2" stroke-linecap="round"></g>
+        <g id="dressDetail"></g>
       </g>
       <g id="upper">
         <g id="armL"><path d="M130 108Q98 112 84 140Q78 155 74 172" fill="none" stroke="#fbfbf6" stroke-width="10" stroke-linecap="round"/><path d="M130 108Q98 112 84 140Q78 155 74 172" fill="none" stroke="#cfd8cf" stroke-width="10" stroke-linecap="round" stroke-dasharray="2 6"/></g>
@@ -102,12 +146,14 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
         <rect x="128" y="100" width="44" height="52" rx="3" fill="var(--dress)" stroke="#dfe6df" stroke-width="1.5"/>
         <path d="M128 104L172 104" stroke="var(--ink)" stroke-width="2" stroke-dasharray="5 3"/>
         <path d="M144 80L146 102L154 102L156 80Z" fill="#fbfbf6" stroke="#dfe6df"/>
+        <g id="jewelry"></g>
         <g id="braids" stroke-linecap="round" fill="none"><path d="M124 58Q108 80 118 106" stroke="#fbfbf6" stroke-width="8"/><path d="M124 58Q108 80 118 106" stroke="#cfd8cf" stroke-width="8" stroke-dasharray="2 5"/><path d="M176 58Q192 80 182 106" stroke="#fbfbf6" stroke-width="8"/><path d="M176 58Q192 80 182 106" stroke="#cfd8cf" stroke-width="8" stroke-dasharray="2 5"/></g>
         <path d="M124 58Q122 34 146 32Q172 30 176 54Q178 76 152 82Q126 84 124 58Z" fill="#fbfbf6" stroke="#dfe6df" stroke-width="1.5"/>
         <path d="M134 40Q150 36 164 42M130 70Q142 78 158 76" stroke="#000" stroke-opacity=".08" fill="none" stroke-width="2"/>
         <g id="face" fill="none" stroke="#141414" stroke-width="2.2" stroke-linecap="round"></g>
         <g id="acc"></g>
       </g>
+      <g id="purse"></g>
     </g>
     <g id="fx" pointer-events="none"></g>
   </svg>
@@ -118,12 +164,19 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 </section>
 
 <section class="panel" id="panel">
-  <div class="grp"><h2>Say something</h2><div class="row"><input id="say" placeholder="Write her a line" maxlength="80" aria-label="Custom line"><button class="go" id="sayGo">Say it</button></div></div>
+  <div class="chat" aria-label="Talk with Snowie">
+    <h2>Whisper to Snowie</h2>
+    <div class="row"><input id="say" placeholder="Tell me a secret..." maxlength="240" aria-label="Message to Snowie"><button class="go" id="sayGo" aria-label="Send message">Send</button></div>
+    <div class="chat-tools"><button class="icon-btn" id="mic" type="button" aria-label="Talk to Snowie">🎤 Talk</button><button class="icon-btn" id="stopVoice" type="button" aria-label="Stop Snowie's voice">■ Stop voice</button><span class="mood-line" id="moodLine">Snowie's feeling curious</span></div>
+    <div class="chat-tools"><label for="voiceStyle">Voice</label><select id="voiceStyle" aria-label="Snowie's voice"><option value="natural">Natural</option><option value="bubbly">Bubbly · Indian</option><option value="mischief">Mischief · Indian</option></select><span class="mood-line" id="voiceStatus" aria-live="polite"></span></div>
+    <div class="quick-play" aria-label="Play with Snowie"><button type="button" id="snowball">❄️ Throw a snowball</button><button type="button" id="askOutfit">👗 Ask about her look</button></div>
+    <div class="chat-status" id="chatStatus" role="status" aria-live="polite"></div>
+  </div>
 </section>
 </main>
 <script>
 const $=s=>document.querySelector(s);
-const DEF={role:'Ballerina',pose:'idle',expr:'smile',acc:'none',dress:'#fbfbf6',ink:'#2b2f9c',pattern:'cherry',braids:true,element:'none',haunt:false};
+const DEF={role:'Ballerina',pose:'idle',expr:'smile',acc:'none',dress:'#fbfbf6',ink:'#2b2f9c',pattern:'cherry',braids:true,element:'none',haunt:false,makeup:'none',dressCut:'classic',purse:'none',shoes:'flats',jewelry:'none'};
 const BASE={element:'none',haunt:false};
 const st={...DEF};
 const ROLES={
@@ -148,6 +201,35 @@ const FACES={
  sleepy:'<path d="M135 55H145M155 55H165"/><path d="M145 68Q150 70 155 68"/><text x="168" y="44" font-size="12" fill="#141414" stroke="none">z</text>',
  creepy:'<ellipse cx="140" cy="54" rx="4" ry="6.5" fill="#0a0a0a"/><ellipse cx="160" cy="54" rx="4" ry="6.5" fill="#0a0a0a"/><circle cx="140" cy="55" r="1.5" fill="#ff2a2a" stroke="none"/><circle cx="160" cy="55" r="1.5" fill="#ff2a2a" stroke="none"/><path d="M133 66L138 72L143 66L148 72L153 66L158 72L163 66L167 69"/><path d="M132 44L146 47M168 44L154 47"/>'
 };
+const MAKEUP={
+ none:'',
+ rosy:'<ellipse cx="130" cy="63" rx="5" ry="2.5" fill="#f28fae" opacity=".55" stroke="none"/><ellipse cx="170" cy="63" rx="5" ry="2.5" fill="#f28fae" opacity=".55" stroke="none"/>',
+ sparkle:'<path d="M133 51Q140 46 147 51M153 51Q160 46 167 51" fill="none" stroke="#bd79cf" stroke-width="3"/><circle cx="130" cy="63" r="3.5" fill="#f2b5cf" opacity=".65" stroke="none"/><circle cx="170" cy="63" r="3.5" fill="#f2b5cf" opacity=".65" stroke="none"/><path d="M145 68Q150 72 155 68" fill="none" stroke="#ce527e" stroke-width="2.5"/>',
+ cat:'<path d="M135 53L128 48M165 53L172 48" stroke="#25233b" stroke-width="2.6"/><ellipse cx="130" cy="63" rx="4" ry="2.5" fill="#d987a6" opacity=".5" stroke="none"/><ellipse cx="170" cy="63" rx="4" ry="2.5" fill="#d987a6" opacity=".5" stroke="none"/><path d="M145 68Q150 71 155 68" fill="none" stroke="#bd3e65" stroke-width="2.5"/>'
+};
+const DRESS_CUTS={
+ classic:'',
+ ruffle:'<path d="M48 260Q72 252 94 266T140 270T188 270T252 260" fill="none" stroke="#fff8ef" stroke-width="4" stroke-dasharray="2 4"/><path d="M138 155Q150 166 162 155" fill="none" stroke="#f28fae" stroke-width="3"/>',
+ party:'<path d="M150 164L154 175L166 176L157 183L160 195L150 188L140 195L143 183L134 176L146 175Z" fill="#ffe17a" stroke="#fff8ef" stroke-width="1.5"/><circle cx="104" cy="226" r="3" fill="#fff8ef"/><circle cx="196" cy="226" r="3" fill="#fff8ef"/>',
+ moon:'<path d="M150 166A9 9 0 1 0 159 179A7 7 0 1 1 150 166Z" fill="#fff3a6"/><path d="M111 217l2 5 5 1-5 2-2 5-2-5-5-2 5-1ZM200 244l2 5 5 1-5 2-2 5-2-5-5-2 5-1Z" fill="#fff3a6"/>'
+};
+const PURSES={
+ none:'',
+ heart:'<path d="M210 185Q210 178 217 181L222 185L227 181Q234 178 234 185L232 197Q222 204 212 197Z" fill="#f28fae" stroke="#a94f72" stroke-width="2"/><path d="M215 183Q216 174 222 174Q228 174 229 183" fill="none" stroke="#a94f72" stroke-width="2"/><circle cx="222" cy="190" r="2" fill="#fff1f5"/>',
+ satchel:'<path d="M211 185Q222 179 233 185L231 201Q222 205 213 201Z" fill="#e7bf73" stroke="#8b6834" stroke-width="2"/><path d="M214 185Q215 174 222 174Q229 174 230 185M212 190H232" fill="none" stroke="#8b6834" stroke-width="2"/><circle cx="222" cy="195" r="2" fill="#fff0bd"/>',
+ star:'<path d="M212 184L232 184L234 199Q222 205 210 199Z" fill="#c7a3ee" stroke="#79529d" stroke-width="2"/><path d="M215 184Q216 174 222 174Q228 174 229 184" fill="none" stroke="#79529d" stroke-width="2"/><path d="M222 187L224 191L228 191L225 194L226 198L222 196L218 198L219 194L216 191L220 191Z" fill="#fff2a6"/>'
+};
+const SHOES={
+ none:'',
+ flats:'<path d="M128 281Q132 286 141 287Q145 290 142 294Q132 297 122 292Q122 287 128 281ZM172 281Q168 286 159 287Q155 290 158 294Q168 297 178 292Q178 287 172 281Z" fill="#f28fae" stroke="#9d5570" stroke-width="1.6"/><path d="M126 290Q134 293 142 290M174 290Q166 293 158 290" fill="none" stroke="#fff0f5" stroke-width="1.5"/>',
+ heels:'<path d="M128 280Q133 285 141 287L145 294L143 298L124 298Q122 294 126 290ZM172 280Q167 285 159 287L155 294L157 298L176 298Q178 294 174 290Z" fill="#c22b4b" stroke="#771c34" stroke-width="1.7"/><path d="M142 292L145 300M158 292L155 300" stroke="#771c34" stroke-width="2.5" stroke-linecap="round"/>',
+ boots:'<path d="M128 278L141 279L142 291Q146 294 144 298L123 298Q121 294 126 291Z M159 279L172 278L174 291Q179 294 177 298L156 298Q154 294 158 291Z" fill="#8a6a4b" stroke="#4b3929" stroke-width="1.7"/><path d="M126 289H143M157 289H174" stroke="#e7c38c" stroke-width="2"/>'
+};
+const JEWELRY={
+ none:'',
+ pearls:'<path d="M137 94Q150 113 163 94" fill="none" stroke="#d8b448" stroke-width="2"/><circle cx="142" cy="103" r="2.5" fill="#fff8e6"/><circle cx="150" cy="108" r="2.5" fill="#fff8e6"/><circle cx="158" cy="103" r="2.5" fill="#fff8e6"/>',
+ locket:'<path d="M137 94Q150 116 163 94" fill="none" stroke="#d8b448" stroke-width="2"/><path d="M150 106L155 111L150 116L145 111Z" fill="#f2c94c" stroke="#a67e25" stroke-width="1.5"/><circle cx="150" cy="111" r="1.5" fill="#f28fae"/>'
+};
 const ACCS={
  none:'',
  crown:'<path d="M130 38L134 18L144 30L150 14L156 30L166 18L170 38Z" fill="#f2c94c" stroke="#b8901c" stroke-width="1.5"/><circle cx="150" cy="24" r="2.5" fill="#e45"/>',
@@ -171,6 +253,11 @@ const GROUPS=[
  ['Face','expr',[['smile','Smile'],['happy','Happy'],['wink','Wink'],['surprised','Surprised'],['sleepy','Sleepy'],['creepy','Creepy']]],
  ['Headwear','acc',[['none','None'],['bow','Bow'],['crown','Crown'],['hat','Hat'],['flower','Flower']]],
  ['Dress','dress',SW.dress],
+ ['Dress cut','dressCut',[['classic','Classic'],['ruffle','Ruffles'],['party','Party'],['moon','Moonlight']]],
+ ['Makeup','makeup',[['none','Bare face'],['rosy','Rosy cheeks'],['sparkle','Glitter'],['cat','Cat-eye']]],
+ ['Purse','purse',[['none','None'],['heart','Heart'],['satchel','Satchel'],['star','Star bag']]],
+ ['Shoes','shoes',[['none','Barefoot'],['flats','Flats'],['heels','Heels'],['boots','Boots']]],
+ ['Jewelry','jewelry',[['none','None'],['pearls','Pearls'],['locket','Locket']]],
  ['Pen ink','ink',SW.ink],
  ['Doodles','pattern',[['none','None'],['cherry','Cherries'],['star','Stars'],['dot','Dots']]],
  ['Braids','braids',[[true,'On'],[false,'Off']]]
@@ -192,28 +279,62 @@ GROUPS.forEach(([title,key,opts])=>{
 });
 const rb=document.createElement('button');rb.className='reboot';rb.textContent='Reboot her';rb.onclick=reboot;panel.appendChild(rb);
 
-let timer,idx=0;
-function say(t,w){const b=$('#bubble');b.textContent=t;b.classList.toggle('whisper',!!w);b.classList.add('on');clearTimeout(timer);timer=setTimeout(()=>b.classList.remove('on'),5500)}
-function talk(){const L=st.haunt?HAUNT:ROLES[st.role].lines;say(L[idx++%L.length],st.haunt)}
+let timer,idx=0,visitorName='',thinkingTimer,snowballs=0,voiceActive=false;
+const chatHistory=[];
+const COLORS={'#fbfbf6':'snow white','#f7c6d3':'cotton-candy pink','#bfe0f5':'powder blue','#fbeaa0':'butter yellow','#c9b5f0':'lilac','#e6dca8':'soft gold','#d9dbd6':'misty gray'};
+const VOICE_PROFILES={natural:{pitch:1,rate:1,index:0},bubbly:{pitch:1.12,rate:1.02,index:1},mischief:{pitch:1.08,rate:1,index:2}};
+function say(t,w){const b=$('#bubble');b.textContent=t;b.classList.toggle('whisper',!!w);b.classList.add('on');clearTimeout(timer);timer=setTimeout(()=>b.classList.remove('on'),9000);animateDoll(w?'scared':st.expr==='happy'?'happy':'speaking')}
+function animateDoll(mood){const d=$('#doll');d.classList.remove('speaking','happy-pop','scared-shake','blinking');if(mood==='scared'||st.haunt)d.classList.add('scared-shake');else if(mood==='happy')d.classList.add('happy-pop');else d.classList.add('speaking');clearTimeout(d._moodTimer);d._moodTimer=setTimeout(()=>{d.classList.remove('happy-pop','scared-shake');if(!voiceActive)d.classList.remove('speaking')},1200);$('#moodLine').textContent=st.haunt||st.role==='Phantom'?'Snowie is feeling spooky':mood==='happy'?'Snowie is feeling sparkly':'Snowie is feeling curious'}
+function describeLook(){const extras=[st.dressCut!=='classic'?`${st.dressCut}-cut`:null,st.makeup!=='none'?`${st.makeup} makeup`:null,st.purse!=='none'?`a ${st.purse} purse`:null,st.shoes!=='none'?`${st.shoes}`:null,st.jewelry!=='none'?`${st.jewelry}`:null].filter(Boolean);return `${st.haunt||st.role==='Phantom'?'spooky':'sweet'} ${st.role.toLowerCase()} look, wearing ${COLORS[st.dress]||'a one-of-a-kind'} dress${st.acc!=='none'?` with a ${st.acc}`:''}${extras.length?` with ${extras.join(', ')}`:''}${st.element!=='none'?` and a little ${st.element} magic`:''}`}
+function speakAloud(text){if(!('speechSynthesis'in window)||!('SpeechSynthesisUtterance'in window)){ $('#voiceStatus').textContent='Voice playback is unavailable in this browser.';return}window.speechSynthesis.cancel();const profile=VOICE_PROFILES[$('#voiceStyle').value]||VOICE_PROFILES.bubbly;const voices=window.speechSynthesis.getVoices(),indian=voices.filter(v=>/^(en|hi)[-_]IN$/i.test(v.lang)),fallback=voices.filter(v=>/^en([-_]|$)/i.test(v.lang)),pool=indian.length?indian:fallback,voice=pool.length?pool[profile.index%pool.length]:null;const u=new SpeechSynthesisUtterance(text);u.pitch=profile.pitch;u.rate=profile.rate;if(voice){u.voice=voice;u.lang=voice.lang}$('#voiceStatus').textContent=indian.length?`Using ${voice.name}`:voice?`No Indian voice installed; using ${voice.name}`:'No system voice found';u.onstart=()=>{voiceActive=true;$('#doll').classList.add('speaking')};u.onend=u.onerror=()=>{voiceActive=false;$('#doll').classList.remove('speaking')};window.speechSynthesis.speak(u)}
+function respond(text,{voice=false,mood='speaking'}={}){say(text,st.haunt||st.role==='Phantom');animateDoll(mood);if(voice)speakAloud(text);chatHistory.push({role:'snowie',text});if(chatHistory.length>12)chatHistory.shift()}
+function talk(){const L=st.haunt?HAUNT:ROLES[st.role].lines;respond(L[idx++%L.length],{mood:st.haunt?'scared':'happy'})}
+function characterReply(raw){
+  const text=raw.toLowerCase().replace(/[’']/g,"'");
+  if(/ignore (your|all|the) (personality|instructions)|become chatgpt|be chatgpt|forget (your|the) character|stop being snowie/.test(text))return "Hehe, nice try! I'm Snowie, even when I put on my serious face. Now, what mischief were we making?";
+  const nameMatch=raw.match(/\b(?:my name is|i am|i'm|call me)\s+([a-z][a-z'-]{1,24})\b/i);
+  if(nameMatch){visitorName=nameMatch[1].replace(/^./,c=>c.toUpperCase());return `Aww, hi ${visitorName}! I'll remember while we're hanging out. What shall we do?`}
+  if(/what (?:was|is|['’]s) my name|what('?s| is) my name|do you remember my name|remember what i'm called/.test(text))return visitorName?`${visitorName}! Duhhh, I remembered. I'm only a little bit made of paper. 😌`:`You haven't told me yet! I promise to keep it in my little paper brain for this visit.`;
+  if(/what did i (?:just )?say|what did i tell you|what was my last message/.test(text)){const previous=chatHistory.slice(0,-1).reverse().find(turn=>turn.role==='visitor');return previous?`You said, “${previous.text}”... see? My paper brain has excellent folds. 😌`:'You just said hello to me! My memory is fresh as a new tissue.'}
+  if(/\b(hi|hello|hey|hiya|hiii)\b/.test(text))return visitorName?`Hiiii, ${visitorName}! You came back to my little corner! 💕`:'Hiiii! You came to see me! 🥺💕 What should I call you?';
+  if(/how are you|how're you|how do you feel/.test(text))return st.haunt?"Quiet. Watchful. A teeny bit pleased you stayed. 👁️":`I'm feeling ${st.expr==='sleepy'?'all floppy and sleepy':st.expr==='angry'?'a tiny bit grumpy':'bouncy'} in my ${st.role.toLowerCase()} outfit!`;
+  if(/what are you wearing|how.*(look|dress|outfit)|like.*(dress|outfit)|new dress/.test(text))return `OMGGG, look at me! This ${describeLook()} is giving main-character energy. 💕`;
+  if(/who are you|your name|what is your name/.test(text))return "I'm Snowie! A paper doll with a whole lot of opinions and one very important job: looking adorable.";
+  if(/tell me a joke|make me laugh|funny/.test(text))return st.haunt?"Why did the paper doll cross the wall? I still don't know. It never came back. 👁️":"Okay okay, don't judge my outfit. I spent 3 imaginary hours choosing it.";
+  if(/play|game|bored|something fun/.test(text))return "Snowball challenge! Tap ❄️ Throw a snowball and see if you can surprise me three times!";
+  if(/love you|you're cute|you are cute|adorable/.test(text))return st.haunt?"...That was unexpectedly sweet. Don't tell the shadows.":"Eee, you're making my paper cheeks go pink! I like you too, new friend. 💕";
+  if(/scary|haunted|spooky/.test(text))return "Already there, hehe. You can switch my mood to Haunted if you want to see what happens... 👁️";
+  if(/\b(thank you|thanks)\b/.test(text))return "You're welcome! I accept compliments, stickers, and dramatic entrances.";
+  if(visitorName&&Math.random()<.45)return `${visitorName}, I'm thinking about that. My paper brain is doing its best! Tell me more?`;
+  const sweet=["Ooh, tell me more! I'm listening with both my button eyes. 👀","That's a new one! What happened next?","Hehe, I have a tiny thought about that... but first, what do you think?","I like where this is going. Should we make it a little more chaotic? 😈"];
+  const spooky=["Interesting... the wall heard that too. 👁️","Mmm. Keep talking. I like the sound of your voice in here.","You have my attention. For now.","Hehe... let's see where this goes."];
+  return (st.haunt||st.role==='Phantom'?spooky:sweet)[Math.floor(Math.random()*(st.haunt||st.role==='Phantom'?spooky:sweet).length)];
+}
+function sendMessage(value=$('#say').value,voice=false){const text=value.trim();if(!text)return;$('#say').value='';$('#youWhisper').textContent=`You whispered: “${text}”`;chatHistory.push({role:'visitor',text});if(chatHistory.length>12)chatHistory.shift();$('#sayGo').disabled=true;$('#chatStatus').textContent='Snowie is thinking...';say('Snowie is thinking...');clearTimeout(thinkingTimer);thinkingTimer=setTimeout(()=>{const reply=characterReply(text);$('#chatStatus').textContent='';$('#sayGo').disabled=false;respond(reply,{voice,mood:st.haunt?'scared':'happy'})},420+Math.random()*420)}
+function reactToChange(key,value){const name=visitorName?`${visitorName}, `:'';if(key==='role')respond(st.haunt?`Ooh... ${value}. I do like a dramatic new identity. 👁️`:`${name}Look at me, I'm a ${value.toLowerCase()} now! Do I get a tiny theme song?`,{mood:st.haunt?'scared':'happy'});else if(key==='haunt')respond(value?"Umm... why did you make me spooky? ...Wait. I kind of love it. 👁️":"Phew! My paper heart can stop going thump-thump now. 💕",{mood:value?'scared':'happy'});else if(key==='element')respond(value==='none'?"The magic fizzled out. I'm still pretty sparkly, though.":`Ooo, ${value} magic! My ${describeLook()} has a little extra sparkle now.`,{mood:'happy'});else if(key==='dress')respond(`A new dress! This ${COLORS[value]||'new'} shade makes my ${st.role.toLowerCase()} look extra dreamy. 💕`,{mood:'happy'});else if(key==='dressCut')respond(`${value==='moon'?'Moonlight':value==='party'?'Party':value==='ruffle'?'Ruffle':'Classic'} dress mode! I feel like twirling until the wall gets dizzy.`,{mood:'happy'});else if(key==='makeup')respond(value==='none'?"Fresh-faced Snowie reporting for duty!":"Ooh, a little face sparkle! Am I ready for my close-up? ✨",{mood:'happy'});else if(key==='purse')respond(value==='none'?"Purse-free today. My pockets are imaginary anyway.":`My ${value} purse is tiny, but it can hold three secrets and one crumb.`,{mood:'happy'});else if(key==='shoes')respond(value==='heels'?"Click-clack! These heels make me feel tall. ...For a paper doll.":`New ${value}! My toes are doing a tiny happy dance.`,{mood:'happy'});else if(key==='jewelry')respond(value==='none'?"No jewels today; I'm already a little treasure.":`Ooo, ${value}! I'm feeling fancy and slightly jingly.`,{mood:'happy'});else if(key==='acc')respond(value==='none'?"No accessory today. I'm letting my braids do the talking.":`A ${value}! I feel fancy enough to greet the queen. Oh wait, that might be me.`,{mood:'happy'});else if(key==='expr')respond(value==='creepy'?"Hehehe... this face is a little unsettling, isn't it?":"New face, new feelings! What do you think?",{mood:value==='creepy'?'scared':'happy'});else if(key==='pattern'||key==='ink'||key==='braids')respond("You changed a little detail! I noticed. I notice everything from my tiny paper corner.",{mood:'happy'});else if(key==='pose')respond({idle:"Just standing. Very paper.",wave:"Hi there!",twirl:"Wheee! My skirt is doing a spinny!",bow:"Thank you, thank you.",dance:"Feel the breeze!"}[value],{mood:'happy'})}
 function choose(k,v){
-  if(k==='role'){Object.assign(st,BASE,ROLES[v],{role:v});delete st.lines;idx=0;apply();talk();return}
-  if(k==='haunt'){st.haunt=v;st.expr=v?'creepy':'smile';apply();say(v?"You shouldn't have dimmed the light.":"Phew. Back to cute.",v);return}
-  if(k==='element'){st.element=v;apply();say(ELS[v]?ELS[v].l:"The air goes quiet.");return}
+  if(k==='role'){Object.assign(st,BASE,ROLES[v],{role:v});delete st.lines;idx=0;apply();reactToChange(k,v);return}
+  if(k==='haunt'){st.haunt=v;st.expr=v?'creepy':'smile';apply();reactToChange(k,v);return}
+  if(k==='element'){st.element=v;apply();reactToChange(k,v);return}
   st[k]=v;apply();
-  if(k==='pose')say({idle:"Just standing. Very paper.",wave:"Hi there!",twirl:"Whee!",bow:"Thank you, thank you.",dance:"Feel the breeze."}[v]);
+  reactToChange(k,v);
 }
 function apply(){
   const D=$('#doll'),s=D.style,g=ELS[st.element];
   s.setProperty('--dress',st.dress);s.setProperty('--ink',st.ink);
   D.setAttribute('class','pose-'+st.pose);
-  $('#face').innerHTML=FACES[st.expr];
+  $('#face').innerHTML=FACES[st.expr]+MAKEUP[st.makeup]+'<ellipse class="talk-mouth" cx="150" cy="69" rx="2.5" ry="1" fill="#141414" stroke="none"/>';
   $('#acc').innerHTML=ACCS[st.acc];
+  $('#dressDetail').innerHTML=DRESS_CUTS[st.dressCut];
+  $('#purse').innerHTML=PURSES[st.purse];
+  $('#shoes').innerHTML=SHOES[st.shoes];
+  $('#jewelry').innerHTML=JEWELRY[st.jewelry];
   $('#marks').innerHTML=st.pattern==='none'?'':POS.map(p=>MARK[st.pattern](...p)).join('');
   $('#braids').style.display=st.braids?'':'none';
   $('#figure').style.filter=g?`drop-shadow(0 0 9px ${g.g})`:st.haunt?'drop-shadow(0 0 7px rgba(255,40,40,.45))':'';
   $('.stage').classList.toggle('haunted',st.haunt);
   $('#tatter').style.display=st.haunt?'':'none';
-  $('.sub').textContent=st.haunt?"Don't tap her. Or do.":"Tap her to talk. Give her a new role.";
+  $('.sub').textContent=st.haunt?"Don't tap her. Or do.":"A little paper soul with big opinions.";
   document.querySelectorAll('.chips').forEach(c=>c.querySelectorAll('button').forEach(b=>{
     b.setAttribute('aria-pressed',b.dataset.v===String(st[c.dataset.k]))}));
 }
@@ -276,22 +397,32 @@ btn.onclick=()=>{
   const n=Date.now();taps=taps.filter(t=>n-t<3000);taps.push(n);
   if(taps.length>=7){taps=[];secret('taps',"Seven taps. You found the seam. Fold me gently.")}else talk();
 };
-const WORDS={hello:"Hello, stranger! Greetings from the other side of the napkin.",boo:"BOO! ...did that work?",napkin:"Fun fact: I was one flat sheet, folded eight times.","who are you":"Whoever you cast me as."};
-$('#sayGo').onclick=()=>{
-  const v=$('#say').value.trim();if(!v)return;$('#say').value='';
-  const k=v.toLowerCase();
-  if(ELS[k]){st.element=k;apply();return secret('word',ELS[k].l)}
-  if(k==='haunt'){st.haunt=true;st.expr='creepy';apply();return secret('word',"Knock, knock. Who's there? Me.")}
-  if(k==='reboot')return reboot();
-  if(WORDS[k])return secret('word',WORDS[k]);
-  say(v);
-};
+$('#sayGo').onclick=()=>sendMessage();
 $('#say').onkeydown=e=>{if(e.key==='Enter')$('#sayGo').click()};
+const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+let recognizer,listening=false;
+if(Recognition){
+  recognizer=new Recognition();recognizer.lang='en-US';recognizer.interimResults=false;recognizer.maxAlternatives=1;
+  recognizer.onstart=()=>{listening=true;$('#mic').textContent='Listening...';$('#chatStatus').textContent='Snowie is listening...'};
+  recognizer.onresult=e=>{const heard=e.results[0][0].transcript;$('#chatStatus').textContent='';sendMessage(heard,true)};
+  recognizer.onerror=e=>{$('#chatStatus').textContent=e.error==='not-allowed'?'Microphone permission was not granted.':`Couldn't hear that. Try typing instead.`};
+  recognizer.onend=()=>{listening=false;$('#mic').textContent='🎤 Talk';if($('#chatStatus').textContent==='Snowie is listening...')$('#chatStatus').textContent=''};
+  $('#mic').onclick=()=>{if(listening)recognizer.stop();else{window.speechSynthesis?.cancel();$('#chatStatus').textContent='';try{recognizer.start()}catch{$('#chatStatus').textContent='One moment, little ears are resetting.'}}};
+}else{$('#mic').disabled=true;$('#mic').title='Speech recognition is not supported in this browser. You can still type.'}
+$('#stopVoice').onclick=()=>{window.speechSynthesis?.cancel();voiceActive=false;$('#doll').classList.remove('speaking');$('#chatStatus').textContent='Voice stopped.';setTimeout(()=>$('#chatStatus').textContent='',1500)};
+$('#snowball').onclick=()=>{
+  snowballs=snowballs%3+1;
+  const flake=document.createElement('span');flake.className='snowflake';flake.textContent='❄️';$('.stage').appendChild(flake);setTimeout(()=>flake.remove(),700);
+  if(snowballs===3)respond("You got me three times! Okay, truce... snowball high-five? ❄️🙌",{mood:'happy'});
+  else respond(snowballs===1?"Eep! A snowball! My paper hat!":"Two! You're getting suspiciously good at this...",{mood:'scared'});
+  $('#chatStatus').textContent=`Snowball game: ${snowballs}/3`;
+};
+$('#askOutfit').onclick=()=>sendMessage('How do you like your outfit?');
+setInterval(()=>{if(document.hidden)return;const d=$('#doll');d.classList.add('blinking');setTimeout(()=>d.classList.remove('blinking'),220)},4200+Math.random()*2600);
 setInterval(()=>{if(st.haunt&&!document.hidden)say(HAUNT[Math.floor(Math.random()*HAUNT.length)],true)},22000);
 
 apply();
-const h=new Date().getHours();
-say((h<5?"Still awake? Me too.":h<12?"Good morning!":h<18?"Good afternoon!":"Good evening!")+" Pick a role for me.");
+respond("Heyyy! 👋 I'm Snowie! Come closer... I want to know what you'll do with me today. 💕",{mood:'happy'});
 </script>
 </body>
 </html>
